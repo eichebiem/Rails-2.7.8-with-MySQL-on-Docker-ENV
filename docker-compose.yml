@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+  mysql:
+    image: mysql:8
+    ports:
+      - 3310:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_DATABASE=rails_development
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - rails-network
+
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysql
+    environment:
+      - RAILS_ENV=development
+      - DATABASE_URL=mysql2://root@mysql:3306/rails_development
+    volumes:
+      - .:/app
+    networks:
+      - rails-network
+    command: rails server -b 0.0.0.0
+
+volumes:
+  gem-cache:
+  mysql-data:
+
+networks:
+  rails-network:
+    driver: bridge
